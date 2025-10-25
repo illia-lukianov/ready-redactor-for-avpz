@@ -3,544 +3,258 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Текстовий редактор - Макет інтерфейсу</title>
+    <title>Деталізована діаграма варіантів використання</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            font-family: Arial, sans-serif;
             background: #f5f5f5;
-            height: 100vh;
+            padding: 20px;
             display: flex;
-            flex-direction: column;
-        }
-        
-        /* Верхня панель */
-        .top-bar {
-            background: linear-gradient(to bottom, #4a90e2, #357abd);
-            color: white;
-            padding: 8px 15px;
-            display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            min-height: 100vh;
+            margin: 0;
         }
         
-        .app-title {
+        .diagram-container {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 1400px;
+            width: 100%;
+        }
+        
+        .diagram-title {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        
+        svg {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .actor {
+            fill: none;
+            stroke: #000;
+            stroke-width: 2;
+        }
+        
+        .actor-head {
+            fill: none;
+            stroke: #000;
+            stroke-width: 2;
+        }
+        
+        .use-case {
+            fill: #e8f4ff;
+            stroke: #4a90e2;
+            stroke-width: 2;
+        }
+        
+        .use-case-secondary {
+            fill: #fff4e8;
+            stroke: #e2a04a;
+            stroke-width: 2;
+        }
+        
+        .system-boundary {
+            fill: none;
+            stroke: #666;
+            stroke-width: 2;
+            stroke-dasharray: 5,5;
+        }
+        
+        .association {
+            stroke: #000;
+            stroke-width: 2;
+            fill: none;
+        }
+        
+        .include-arrow {
+            stroke: #000;
+            stroke-width: 2;
+            fill: none;
+            stroke-dasharray: 5,5;
+        }
+        
+        .extend-arrow {
+            stroke: #e24a4a;
+            stroke-width: 2;
+            fill: none;
+            stroke-dasharray: 5,5;
+        }
+        
+        .generalization-arrow {
+            stroke: #000;
+            stroke-width: 2;
+            fill: white;
+        }
+        
+        .arrow-head {
+            fill: none;
+            stroke: #000;
+            stroke-width: 2;
+        }
+        
+        text {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+        }
+        
+        .label {
+            font-size: 12px;
+            fill: #333;
+        }
+        
+        .stereotype {
+            font-size: 10px;
+            fill: #666;
+            font-style: italic;
+        }
+        
+        .system-label {
             font-size: 16px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            font-size: 13px;
-        }
-        
-        .user-avatar {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: white;
-            color: #4a90e2;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             font-weight: bold;
-            font-size: 12px;
+            fill: #666;
         }
         
-        /* Головне меню */
-        .menu-bar {
-            background: white;
-            padding: 0;
-            border-bottom: 1px solid #ddd;
-            display: flex;
+        .note {
+            fill: #fffacd;
+            stroke: #999;
+            stroke-width: 1;
         }
         
-        .menu-item {
-            padding: 10px 20px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background 0.2s;
-            border-right: 1px solid #eee;
-        }
-        
-        .menu-item:hover {
-            background: #f0f0f0;
-        }
-        
-        /* Панель інструментів */
-        .toolbar {
-            background: #fafafa;
-            padding: 10px 15px;
-            border-bottom: 1px solid #ddd;
-            display: flex;
-            gap: 5px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        
-        .tool-group {
-            display: flex;
-            gap: 3px;
-            padding-right: 10px;
-            border-right: 1px solid #ccc;
-            margin-right: 5px;
-        }
-        
-        .tool-group:last-child {
-            border-right: none;
-        }
-        
-        .tool-btn {
-            width: 32px;
-            height: 32px;
-            border: 1px solid #ccc;
-            background: white;
-            cursor: pointer;
-            border-radius: 3px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: bold;
-            transition: all 0.2s;
-        }
-        
-        .tool-btn:hover {
-            background: #e8e8e8;
-            border-color: #999;
-        }
-        
-        .tool-btn.active {
-            background: #4a90e2;
-            color: white;
-            border-color: #357abd;
-        }
-        
-        .font-select {
-            padding: 5px 10px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            font-size: 13px;
-            background: white;
-            cursor: pointer;
-        }
-        
-        .font-size {
-            width: 60px;
-            padding: 5px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            font-size: 13px;
-        }
-        
-        /* Робоча область */
-        .workspace {
-            flex: 1;
-            display: flex;
-            overflow: hidden;
-        }
-        
-        /* Бічна панель */
-        .sidebar {
-            width: 220px;
-            background: white;
-            border-right: 1px solid #ddd;
-            padding: 15px;
-            overflow-y: auto;
-        }
-        
-        .sidebar-section {
-            margin-bottom: 20px;
-        }
-        
-        .sidebar-title {
-            font-size: 13px;
-            font-weight: 600;
-            color: #666;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-        }
-        
-        .document-item {
-            padding: 8px 10px;
-            margin-bottom: 5px;
-            background: #f9f9f9;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: background 0.2s;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .document-item:hover {
-            background: #e8f4ff;
-        }
-        
-        .document-item.active {
-            background: #4a90e2;
-            color: white;
-        }
-        
-        .doc-icon {
-            font-size: 11px;
-        }
-        
-        /* Область редагування */
-        .editor-area {
-            flex: 1;
-            background: #e8e8e8;
-            padding: 30px;
-            overflow-y: auto;
-        }
-        
-        .page {
-            background: white;
-            min-height: 800px;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 60px 80px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            position: relative;
-        }
-        
-        .editor-content {
-            font-size: 14px;
-            line-height: 1.8;
-            color: #333;
-            outline: none;
-        }
-        
-        .cursor {
-            display: inline-block;
-            width: 2px;
-            height: 20px;
-            background: #000;
-            animation: blink 1s infinite;
-            vertical-align: middle;
-        }
-        
-        @keyframes blink {
-            0%, 49% { opacity: 1; }
-            50%, 100% { opacity: 0; }
-        }
-        
-        /* Статус бар */
-        .status-bar {
-            background: #f0f0f0;
-            padding: 5px 15px;
-            border-top: 1px solid #ddd;
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: #666;
-        }
-        
-        .status-item {
-            display: flex;
-            gap: 20px;
-        }
-        
-        /* Правa панель властивостей */
-        .properties-panel {
-            width: 250px;
-            background: white;
-            border-left: 1px solid #ddd;
-            padding: 15px;
-            overflow-y: auto;
-        }
-        
-        .property-section {
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .property-title {
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 12px;
-            color: #333;
-        }
-        
-        .property-control {
-            margin-bottom: 10px;
-        }
-        
-        .property-label {
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 5px;
-        }
-        
-        .property-input {
-            width: 100%;
-            padding: 6px;
-            border: 1px solid #ddd;
-            border-radius: 3px;
-            font-size: 12px;
-        }
-        
-        .color-picker {
-            display: flex;
-            gap: 5px;
-            flex-wrap: wrap;
-        }
-        
-        .color-box {
-            width: 30px;
-            height: 30px;
-            border: 2px solid #ddd;
-            border-radius: 3px;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        
-        .color-box:hover {
-            transform: scale(1.1);
-            border-color: #4a90e2;
-        }
-        
-        .btn-primary {
-            width: 100%;
-            padding: 8px;
-            background: #4a90e2;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: background 0.2s;
-        }
-        
-        .btn-primary:hover {
-            background: #357abd;
+        .note-text {
+            font-size: 10px;
+            fill: #333;
         }
     </style>
 </head>
 <body>
-    <!-- Верхня панель -->
-    <div class="top-bar">
-        <div class="app-title">
-            📝 Текстовий Редактор Pro
-        </div>
-        <div class="user-info">
-            <span>Документ без назви</span>
-            <span>Останнє збереження: 14:23</span>
-            <div class="user-avatar">ІЯ</div>
-        </div>
-    </div>
-    
-    <!-- Головне меню -->
-    <div class="menu-bar">
-        <div class="menu-item">Файл</div>
-        <div class="menu-item">Редагування</div>
-        <div class="menu-item">Вигляд</div>
-        <div class="menu-item">Вставка</div>
-        <div class="menu-item">Формат</div>
-        <div class="menu-item">Інструменти</div>
-        <div class="menu-item">Довідка</div>
-    </div>
-    
-    <!-- Панель інструментів -->
-    <div class="toolbar">
-        <div class="tool-group">
-            <button class="tool-btn" title="Створити">📄</button>
-            <button class="tool-btn" title="Відкрити">📂</button>
-            <button class="tool-btn" title="Зберегти">💾</button>
-        </div>
+    <div class="diagram-container">
+        <div class="diagram-title">Деталізована діаграма варіантів використання<br>Система форматування документів у текстовому редакторі</div>
         
-        <div class="tool-group">
-            <button class="tool-btn" title="Скасувати">↶</button>
-            <button class="tool-btn" title="Повторити">↷</button>
-        </div>
-        
-        <div class="tool-group">
-            <select class="font-select">
-                <option>Arial</option>
-                <option>Times New Roman</option>
-                <option>Courier New</option>
-                <option>Verdana</option>
-            </select>
-            <input type="number" class="font-size" value="12" min="8" max="72">
-        </div>
-        
-        <div class="tool-group">
-            <button class="tool-btn" title="Жирний"><b>B</b></button>
-            <button class="tool-btn" title="Курсив"><i>I</i></button>
-            <button class="tool-btn" title="Підкреслений"><u>U</u></button>
-        </div>
-        
-        <div class="tool-group">
-            <button class="tool-btn" title="Вліво">≡</button>
-            <button class="tool-btn" title="По центру">≣</button>
-            <button class="tool-btn" title="Вправо">≡</button>
-            <button class="tool-btn" title="По ширині">▦</button>
-        </div>
-        
-        <div class="tool-group">
-            <button class="tool-btn" title="Маркований список">• —</button>
-            <button class="tool-btn" title="Нумерований список">1. —</button>
-        </div>
-        
-        <div class="tool-group">
-            <button class="tool-btn" title="Вставити зображення">🖼</button>
-            <button class="tool-btn" title="Вставити таблицю">▦</button>
-            <button class="tool-btn" title="Вставити посилання">🔗</button>
-        </div>
-    </div>
-    
-    <!-- Робоча область -->
-    <div class="workspace">
-        <!-- Бічна панель -->
-        <div class="sidebar">
-            <div class="sidebar-section">
-                <div class="sidebar-title">Останні документи</div>
-                <div class="document-item active">
-                    <span>📄 Документ без назви</span>
-                    <span class="doc-icon">⋮</span>
-                </div>
-                <div class="document-item">
-                    <span>📄 Звіт_2024.docx</span>
-                    <span class="doc-icon">⋮</span>
-                </div>
-                <div class="document-item">
-                    <span>📄 Презентація.docx</span>
-                    <span class="doc-icon">⋮</span>
-                </div>
-                <div class="document-item">
-                    <span>📄 Лист_клієнту.docx</span>
-                    <span class="doc-icon">⋮</span>
-                </div>
-            </div>
+        <svg viewBox="0 0 1300 900">
+            <!-- System boundary -->
+            <rect x="200" y="80" width="950" height="750" class="system-boundary" rx="10"/>
+            <text x="675" y="70" class="system-label" text-anchor="middle">Текстовий редактор</text>
             
-            <div class="sidebar-section">
-                <div class="sidebar-title">Шаблони</div>
-                <div class="document-item">
-                    <span>📋 Порожній документ</span>
-                </div>
-                <div class="document-item">
-                    <span>📋 Діловий лист</span>
-                </div>
-                <div class="document-item">
-                    <span>📋 Резюме</span>
-                </div>
-                <div class="document-item">
-                    <span>📋 Звіт</span>
-                </div>
-            </div>
+            <!-- Actors -->
+            <!-- Regular User -->
+            <g transform="translate(80, 250)">
+                <circle cx="0" cy="0" r="15" class="actor-head"/>
+                <line x1="0" y1="15" x2="0" y2="50" class="actor"/>
+                <line x1="0" y1="25" x2="-20" y2="40" class="actor"/>
+                <line x1="0" y1="25" x2="20" y2="40" class="actor"/>
+                <line x1="0" y1="50" x2="-15" y2="75" class="actor"/>
+                <line x1="0" y1="50" x2="15" y2="75" class="actor"/>
+                <text x="0" y="95" text-anchor="middle" class="label">Користувач</text>
+            </g>
             
-            <div class="sidebar-section">
-                <div class="sidebar-title">Швидкі дії</div>
-                <button class="btn-primary">+ Новий документ</button>
-            </div>
-        </div>
-        
-        <!-- Область редагування -->
-        <div class="editor-area">
-            <div class="page">
-                <div class="editor-content" contenteditable="true">
-                    <h1>Заголовок документа</h1>
-                    <p>Це приклад текстового редактора з повнофункціональним інтерфейсом. Ви можете редагувати текст, застосовувати форматування, вставляти зображення та таблиці.</p>
-                    <p><span class="cursor"></span></p>
-                    <p>Основні можливості:</p>
-                    <ul style="margin-left: 20px;">
-                        <li>Форматування тексту (жирний, курсив, підкреслений)</li>
-                        <li>Вирівнювання абзаців</li>
-                        <li>Списки (маркований та нумерований)</li>
-                        <li>Вставка зображень та таблиць</li>
-                        <li>Автоматичне збереження</li>
-                    </ul>
-                    <p></p>
-                    <p>Текст автоматично зберігається під час роботи. Останнє збереження відображається у верхній панелі.</p>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Права панель властивостей -->
-        <div class="properties-panel">
-            <div class="property-section">
-                <div class="property-title">Властивості абзацу</div>
-                <div class="property-control">
-                    <div class="property-label">Міжрядковий інтервал</div>
-                    <select class="property-input">
-                        <option>1.0</option>
-                        <option>1.15</option>
-                        <option selected>1.5</option>
-                        <option>2.0</option>
-                    </select>
-                </div>
-                <div class="property-control">
-                    <div class="property-label">Відступ зліва (мм)</div>
-                    <input type="number" class="property-input" value="0" min="0" max="50">
-                </div>
-                <div class="property-control">
-                    <div class="property-label">Відступ справа (мм)</div>
-                    <input type="number" class="property-input" value="0" min="0" max="50">
-                </div>
-            </div>
+            <!-- Professional User -->
+            <g transform="translate(80, 450)">
+                <circle cx="0" cy="0" r="15" class="actor-head"/>
+                <line x1="0" y1="15" x2="0" y2="50" class="actor"/>
+                <line x1="0" y1="25" x2="-20" y2="40" class="actor"/>
+                <line x1="0" y1="25" x2="20" y2="40" class="actor"/>
+                <line x1="0" y1="50" x2="-15" y2="75" class="actor"/>
+                <line x1="0" y1="50" x2="15" y2="75" class="actor"/>
+                <text x="0" y="95" text-anchor="middle" class="label">Професійний</text>
+                <text x="0" y="110" text-anchor="middle" class="label">користувач</text>
+            </g>
             
-            <div class="property-section">
-                <div class="property-title">Колір тексту</div>
-                <div class="color-picker">
-                    <div class="color-box" style="background: #000000;" title="Чорний"></div>
-                    <div class="color-box" style="background: #FF0000;" title="Червоний"></div>
-                    <div class="color-box" style="background: #00FF00;" title="Зелений"></div>
-                    <div class="color-box" style="background: #0000FF;" title="Синій"></div>
-                    <div class="color-box" style="background: #FFFF00;" title="Жовтий"></div>
-                    <div class="color-box" style="background: #FF00FF;" title="Фіолетовий"></div>
-                </div>
-            </div>
+            <!-- System Actor -->
+            <g transform="translate(1220, 350)">
+                <rect x="-30" y="-20" width="60" height="40" class="use-case-secondary" rx="5"/>
+                <text x="0" y="-5" text-anchor="middle" class="label" font-size="11">Система</text>
+                <text x="0" y="10" text-anchor="middle" class="label" font-size="11">збереження</text>
+            </g>
             
-            <div class="property-section">
-                <div class="property-title">Властивості сторінки</div>
-                <div class="property-control">
-                    <div class="property-label">Орієнтація</div>
-                    <select class="property-input">
-                        <option selected>Книжкова</option>
-                        <option>Альбомна</option>
-                    </select>
-                </div>
-                <div class="property-control">
-                    <div class="property-label">Поля (мм)</div>
-                    <input type="number" class="property-input" value="20" min="5" max="50">
-                </div>
-            </div>
+            <!-- Generalization between actors -->
+            <line x1="80" y1="345" x2="80" y2="440" class="generalization-arrow"/>
+            <polygon points="80,345 75,353 85,353" fill="white" stroke="#000" stroke-width="2"/>
             
-            <div class="property-section">
-                <div class="property-title">Статистика</div>
-                <div class="property-control">
-                    <div class="property-label">Слів: <strong>47</strong></div>
-                    <div class="property-label">Символів: <strong>342</strong></div>
-                    <div class="property-label">Абзаців: <strong>5</strong></div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Статус бар -->
-    <div class="status-bar">
-        <div class="status-item">
-            <span>Сторінка 1 з 1</span>
-            <span>Рядок 8, Стовпець 15</span>
-        </div>
-        <div class="status-item">
-            <span>Мова: Українська</span>
-            <span>Масштаб: 100%</span>
-            <span>🔌 Підключено до мережі</span>
-        </div>
-    </div>
-</body>
-</html>
+            <!-- Main Use Case -->
+            <ellipse cx="450" cy="250" rx="110" ry="40" class="use-case"/>
+            <text x="450" y="245" text-anchor="middle" class="label">Форматувати</text>
+            <text x="450" y="260" text-anchor="middle" class="label">документ</text>
+            
+            <!-- Level 1 Use Cases -->
+            <!-- Format Text -->
+            <ellipse cx="300" cy="400" rx="90" ry="35" class="use-case"/>
+            <text x="300" y="395" text-anchor="middle" class="label">Форматувати</text>
+            <text x="300" y="410" text-anchor="middle" class="label">текст</text>
+            
+            <!-- Format Paragraph -->
+            <ellipse cx="500" cy="420" rx="90" ry="35" class="use-case"/>
+            <text x="500" y="415" text-anchor="middle" class="label">Форматувати</text>
+            <text x="500" y="430" text-anchor="middle" class="label">абзац</text>
+            
+            <!-- Format Page -->
+            <ellipse cx="700" cy="400" rx="90" ry="35" class="use-case"/>
+            <text x="700" y="395" text-anchor="middle" class="label">Налаштувати</text>
+            <text x="700" y="410" text-anchor="middle" class="label">сторінку</text>
+            
+            <!-- Insert Objects -->
+            <ellipse cx="900" cy="380" rx="90" ry="35" class="use-case"/>
+            <text x="900" y="375" text-anchor="middle" class="label">Вставити</text>
+            <text x="900" y="390" text-anchor="middle" class="label">об'єкт</text>
+            
+            <!-- Level 2 Use Cases - Format Text details -->
+            <ellipse cx="240" cy="550" rx="75" ry="30" class="use-case-secondary"/>
+            <text x="240" y="545" text-anchor="middle" class="label" font-size="11">Змінити</text>
+            <text x="240" y="558" text-anchor="middle" class="label" font-size="11">шрифт</text>
+            
+            <ellipse cx="360" cy="550" rx="75" ry="30" class="use-case-secondary"/>
+            <text x="360" y="545" text-anchor="middle" class="label" font-size="11">Застосувати</text>
+            <text x="360" y="558" text-anchor="middle" class="label" font-size="11">стиль</text>
+            
+            <ellipse cx="300" cy="650" rx="75" ry="30" class="use-case-secondary"/>
+            <text x="300" y="645" text-anchor="middle" class="label" font-size="11">Змінити</text>
+            <text x="300" y="658" text-anchor="middle" class="label" font-size="11">колір</text>
+            
+            <!-- Level 2 Use Cases - Format Paragraph details -->
+            <ellipse cx="450" cy="570" rx="75" ry="30" class="use-case-secondary"/>
+            <text x="450" y="565" text-anchor="middle" class="label" font-size="11">Вирівняти</text>
+            <text x="450" y="578" text-anchor="middle" class="label" font-size="11">текст</text>
+            
+            <ellipse cx="550" cy="570" rx="75" ry="30" class="use-case-secondary"/>
+            <text x="550" y="565" text-anchor="middle" class="label" font-size="11">Встановити</text>
+            <text x="550" y="578" text-anchor="middle" class="label" font-size="11">відступи</text>
+            
+            <ellipse cx="500" cy="670" rx="75" ry="30" class="use-case-secondary"/>
+            <text x="500" y="665" text-anchor="middle" class="label" font-size="11">Міжрядковий</text>
+            <text x="500" y="678" text-anchor="middle" class="label" font-size="11">інтервал</text>
+            
+            <!-- Level 2 Use Cases - Insert Objects details -->
+            <ellipse cx="850" cy="520" rx="75" ry="30" class="use-case-secondary"/>
+            <text x="850" y="515" text-anchor="middle" class="label" font-size="11">Вставити</text>
+            <text x="850" y="528" text-anchor="middle" class="label" font-size="11">таблицю</text>
+            
+            <ellipse cx="950" cy="520" rx="75" ry="30" class="use-case-secondary" />
+            <text x="950" y="515" text-anchor="middle" class="label" font-size="11">Вставити</text>
+            <text x="950" y="528" text-anchor="middle" class="label" font-size="11">зображення</text>
+            
+            <!-- Common Use Case -->
+            <ellipse cx="1000" cy="250" rx="80" ry="30" class="use-case" />
+            <text x="1000" y="245" text-anchor="middle" class="label" font-size="11">Зберегти</text>
+            <text x="1000" y="258" text-anchor="middle" class="label" font-size="11">зміни</text>
+            
+            <!-- Extension Use Case -->
+            <ellipse cx="700" cy="150" rx="80" ry="30" class="use-case-secondary"/>
+            <text x="700" y="145" text-anchor="middle" class="label" font-size="11">Перевірити</text>
+            <text x="700" y="158" text-anchor="middle" class="label" font-size="11">орфографію</text>
+            
+            <!-- Associations from actors -->
+            <line x1="100" y1="285" x2="355" y2="235" class="association"/>
+            <line x1="100" y1="485" x2="395" y2="275" class="association"/>
+            
+            <!-- Include relationships from main use case -->
+            <line x1="365" y1="275" x2="330" y2="370" class="include-arrow"/>
+            <polygon points="330,370 335,362
