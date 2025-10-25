@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Текстовий редактор - Макет інтерфейсу</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #f5f5f5;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Верхня панель */
+        .top-bar {
+            background: linear-gradient(to bottom, #4a90e2, #357abd);
+            color: white;
+            padding: 8px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .app-title {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 13px;
+        }
+        
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: white;
+            color: #4a90e2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        /* Головне меню */
+        .menu-bar {
+            background: white;
+            padding: 0;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+        }
+        
+        .menu-item {
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+            border-right: 1px solid #eee;
+        }
+        
+        .menu-item:hover {
+            background: #f0f0f0;
+        }
+        
+        /* Панель інструментів */
+        .toolbar {
+            background: #fafafa;
+            padding: 10px 15px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .tool-group {
+            display: flex;
+            gap: 3px;
+            padding-right: 10px;
+            border-right: 1px solid #ccc;
+            margin-right: 5px;
+        }
+        
+        .tool-group:last-child {
+            border-right: none;
+        }
+        
+        .tool-btn {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #ccc;
+            background: white;
+            cursor: pointer;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        
+        .tool-btn:hover {
+            background: #e8e8e8;
+            border-color: #999;
+        }
+        
+        .tool-btn.active {
+            background: #4a90e2;
+            color: white;
+            border-color: #357abd;
+        }
+        
+        .font-select {
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 13px;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .font-size {
+            width: 60px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 13px;
+        }
+        
+        /* Робоча область */
+        .workspace {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+        
+        /* Бічна панель */
+        .sidebar {
+            width: 220px;
+            background: white;
+            border-right: 1px solid #ddd;
+            padding: 15px;
+            overflow-y: auto;
+        }
+        
+        .sidebar-section {
+            margin-bottom: 20px;
+        }
+        
+        .sidebar-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        
+        .document-item {
+            padding: 8px 10px;
+            margin-bottom: 5px;
+            background: #f9f9f9;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .document-item:hover {
+            background: #e8f4ff;
+        }
+        
+        .document-item.active {
+            background: #4a90e2;
+            color: white;
+        }
+        
+        .doc-icon {
+            font-size: 11px;
+        }
+        
+        /* Область редагування */
+        .editor-area {
+            flex: 1;
+            background: #e8e8e8;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        
+        .page {
+            background: white;
+            min-height: 800px;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 80px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .editor-content {
+            font-size: 14px;
+            line-height: 1.8;
+            color: #333;
+            outline: none;
+        }
+        
+        .cursor {
+            display: inline-block;
+            width: 2px;
+            height: 20px;
+            background: #000;
+            animation: blink 1s infinite;
+            vertical-align: middle;
+        }
+        
+        @keyframes blink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
+        }
+        
+        /* Статус бар */
+        .status-bar {
+            background: #f0f0f0;
+            padding: 5px 15px;
+            border-top: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .status-item {
+            display: flex;
+            gap: 20px;
+        }
+        
+        /* Правa панель властивостей */
+        .properties-panel {
+            width: 250px;
+            background: white;
+            border-left: 1px solid #ddd;
+            padding: 15px;
+            overflow-y: auto;
+        }
+        
+        .property-section {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .property-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #333;
+        }
+        
+        .property-control {
+            margin-bottom: 10px;
+        }
+        
+        .property-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .property-input {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        
+        .color-picker {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        
+        .color-box {
+            width: 30px;
+            height: 30px;
+            border: 2px solid #ddd;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .color-box:hover {
+            transform: scale(1.1);
+            border-color: #4a90e2;
+        }
+        
+        .btn-primary {
+            width: 100%;
+            padding: 8px;
+            background: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background 0.2s;
+        }
+        
+        .btn-primary:hover {
+            background: #357abd;
+        }
+    </style>
+</head>
+<body>
+    <!-- Верхня панель -->
+    <div class="top-bar">
+        <div class="app-title">
+            📝 Текстовий Редактор Pro
+        </div>
+        <div class="user-info">
+            <span>Документ без назви</span>
+            <span>Останнє збереження: 14:23</span>
+            <div class="user-avatar">ІЯ</div>
+        </div>
+    </div>
+    
+    <!-- Головне меню -->
+    <div class="menu-bar">
+        <div class="menu-item">Файл</div>
+        <div class="menu-item">Редагування</div>
+        <div class="menu-item">Вигляд</div>
+        <div class="menu-item">Вставка</div>
+        <div class="menu-item">Формат</div>
+        <div class="menu-item">Інструменти</div>
+        <div class="menu-item">Довідка</div>
+    </div>
+    
+    <!-- Панель інструментів -->
+    <div class="toolbar">
+        <div class="tool-group">
+            <button class="tool-btn" title="Створити">📄</button>
+            <button class="tool-btn" title="Відкрити">📂</button>
+            <button class="tool-btn" title="Зберегти">💾</button>
+        </div>
+        
+        <div class="tool-group">
+            <button class="tool-btn" title="Скасувати">↶</button>
+            <button class="tool-btn" title="Повторити">↷</button>
+        </div>
+        
+        <div class="tool-group">
+            <select class="font-select">
+                <option>Arial</option>
+                <option>Times New Roman</option>
+                <option>Courier New</option>
+                <option>Verdana</option>
+            </select>
+            <input type="number" class="font-size" value="12" min="8" max="72">
+        </div>
+        
+        <div class="tool-group">
+            <button class="tool-btn" title="Жирний"><b>B</b></button>
+            <button class="tool-btn" title="Курсив"><i>I</i></button>
+            <button class="tool-btn" title="Підкреслений"><u>U</u></button>
+        </div>
+        
+        <div class="tool-group">
+            <button class="tool-btn" title="Вліво">≡</button>
+            <button class="tool-btn" title="По центру">≣</button>
+            <button class="tool-btn" title="Вправо">≡</button>
+            <button class="tool-btn" title="По ширині">▦</button>
+        </div>
+        
+        <div class="tool-group">
+            <button class="tool-btn" title="Маркований список">• —</button>
+            <button class="tool-btn" title="Нумерований список">1. —</button>
+        </div>
+        
+        <div class="tool-group">
+            <button class="tool-btn" title="Вставити зображення">🖼</button>
+            <button class="tool-btn" title="Вставити таблицю">▦</button>
+            <button class="tool-btn" title="Вставити посилання">🔗</button>
+        </div>
+    </div>
+    
+    <!-- Робоча область -->
+    <div class="workspace">
+        <!-- Бічна панель -->
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">Останні документи</div>
+                <div class="document-item active">
+                    <span>📄 Документ без назви</span>
+                    <span class="doc-icon">⋮</span>
+                </div>
+                <div class="document-item">
+                    <span>📄 Звіт_2024.docx</span>
+                    <span class="doc-icon">⋮</span>
+                </div>
+                <div class="document-item">
+                    <span>📄 Презентація.docx</span>
+                    <span class="doc-icon">⋮</span>
+                </div>
+                <div class="document-item">
+                    <span>📄 Лист_клієнту.docx</span>
+                    <span class="doc-icon">⋮</span>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-title">Шаблони</div>
+                <div class="document-item">
+                    <span>📋 Порожній документ</span>
+                </div>
+                <div class="document-item">
+                    <span>📋 Діловий лист</span>
+                </div>
+                <div class="document-item">
+                    <span>📋 Резюме</span>
+                </div>
+                <div class="document-item">
+                    <span>📋 Звіт</span>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-title">Швидкі дії</div>
+                <button class="btn-primary">+ Новий документ</button>
+            </div>
+        </div>
+        
+        <!-- Область редагування -->
+        <div class="editor-area">
+            <div class="page">
+                <div class="editor-content" contenteditable="true">
+                    <h1>Заголовок документа</h1>
+                    <p>Це приклад текстового редактора з повнофункціональним інтерфейсом. Ви можете редагувати текст, застосовувати форматування, вставляти зображення та таблиці.</p>
+                    <p><span class="cursor"></span></p>
+                    <p>Основні можливості:</p>
+                    <ul style="margin-left: 20px;">
+                        <li>Форматування тексту (жирний, курсив, підкреслений)</li>
+                        <li>Вирівнювання абзаців</li>
+                        <li>Списки (маркований та нумерований)</li>
+                        <li>Вставка зображень та таблиць</li>
+                        <li>Автоматичне збереження</li>
+                    </ul>
+                    <p></p>
+                    <p>Текст автоматично зберігається під час роботи. Останнє збереження відображається у верхній панелі.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Права панель властивостей -->
+        <div class="properties-panel">
+            <div class="property-section">
+                <div class="property-title">Властивості абзацу</div>
+                <div class="property-control">
+                    <div class="property-label">Міжрядковий інтервал</div>
+                    <select class="property-input">
+                        <option>1.0</option>
+                        <option>1.15</option>
+                        <option selected>1.5</option>
+                        <option>2.0</option>
+                    </select>
+                </div>
+                <div class="property-control">
+                    <div class="property-label">Відступ зліва (мм)</div>
+                    <input type="number" class="property-input" value="0" min="0" max="50">
+                </div>
+                <div class="property-control">
+                    <div class="property-label">Відступ справа (мм)</div>
+                    <input type="number" class="property-input" value="0" min="0" max="50">
+                </div>
+            </div>
+            
+            <div class="property-section">
+                <div class="property-title">Колір тексту</div>
+                <div class="color-picker">
+                    <div class="color-box" style="background: #000000;" title="Чорний"></div>
+                    <div class="color-box" style="background: #FF0000;" title="Червоний"></div>
+                    <div class="color-box" style="background: #00FF00;" title="Зелений"></div>
+                    <div class="color-box" style="background: #0000FF;" title="Синій"></div>
+                    <div class="color-box" style="background: #FFFF00;" title="Жовтий"></div>
+                    <div class="color-box" style="background: #FF00FF;" title="Фіолетовий"></div>
+                </div>
+            </div>
+            
+            <div class="property-section">
+                <div class="property-title">Властивості сторінки</div>
+                <div class="property-control">
+                    <div class="property-label">Орієнтація</div>
+                    <select class="property-input">
+                        <option selected>Книжкова</option>
+                        <option>Альбомна</option>
+                    </select>
+                </div>
+                <div class="property-control">
+                    <div class="property-label">Поля (мм)</div>
+                    <input type="number" class="property-input" value="20" min="5" max="50">
+                </div>
+            </div>
+            
+            <div class="property-section">
+                <div class="property-title">Статистика</div>
+                <div class="property-control">
+                    <div class="property-label">Слів: <strong>47</strong></div>
+                    <div class="property-label">Символів: <strong>342</strong></div>
+                    <div class="property-label">Абзаців: <strong>5</strong></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Статус бар -->
+    <div class="status-bar">
+        <div class="status-item">
+            <span>Сторінка 1 з 1</span>
+            <span>Рядок 8, Стовпець 15</span>
+        </div>
+        <div class="status-item">
+            <span>Мова: Українська</span>
+            <span>Масштаб: 100%</span>
+            <span>🔌 Підключено до мережі</span>
+        </div>
+    </div>
+</body>
+</html>
