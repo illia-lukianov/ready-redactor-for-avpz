@@ -90,20 +90,28 @@ let actorCount=0;
 let contextTarget=null;
 
 // --- Режими ---
-function setMode(newMode){
-  mode=newMode;
-  document.getElementById('moveBtn').classList.toggle('active', mode==='move');
-  document.getElementById('connectBtn').classList.toggle('active', mode==='connect');
+function setMode(newMode) {
+  mode = newMode;
+  document.getElementById('moveBtn').classList.toggle('active', mode === 'move');
+  document.getElementById('connectBtn').classList.toggle('active', mode === 'connect');
+
   const arrowMenu = document.getElementById('arrowTypeSelector');
-if (mode === 'connect') {
-  // показати під головним меню
-  arrowMenu.style.display = 'flex';
-} else {
-  arrowMenu.style.display = 'none';
-}
-  document.getElementById('usecaseOptions').style.display='none';
-  connectingFrom=null;
-  if(tempLine){tempLine.remove(); tempLine=null;}
+  if (mode === 'connect') {
+    arrowMenu.style.display = 'flex';
+  } else {
+    arrowMenu.style.display = 'none';
+  }
+
+  document.getElementById('usecaseOptions').style.display = 'none';
+
+  if (connectingFrom) {
+    connectingFrom.classList.remove('selected');
+    connectingFrom = null;
+  }
+  if (tempLine) {
+    tempLine.remove();
+    tempLine = null;
+  }
 }
 
 // --- Меню Use Case ---
