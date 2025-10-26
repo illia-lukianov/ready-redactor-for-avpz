@@ -1,2 +1,1 @@
-# university-avpz-maket
-university-avpz-maket
+ready-redactor-for-avpz
