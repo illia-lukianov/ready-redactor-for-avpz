@@ -1,260 +1,329 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Деталізована діаграма варіантів використання</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-        
-        .diagram-container {
-            background: white;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            max-width: 1400px;
-            width: 100%;
-        }
-        
-        .diagram-title {
-            text-align: center;
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 30px;
-            color: #333;
-        }
-        
-        svg {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-        
-        .actor {
-            fill: none;
-            stroke: #000;
-            stroke-width: 2;
-        }
-        
-        .actor-head {
-            fill: none;
-            stroke: #000;
-            stroke-width: 2;
-        }
-        
-        .use-case {
-            fill: #e8f4ff;
-            stroke: #4a90e2;
-            stroke-width: 2;
-        }
-        
-        .use-case-secondary {
-            fill: #fff4e8;
-            stroke: #e2a04a;
-            stroke-width: 2;
-        }
-        
-        .system-boundary {
-            fill: none;
-            stroke: #666;
-            stroke-width: 2;
-            stroke-dasharray: 5,5;
-        }
-        
-        .association {
-            stroke: #000;
-            stroke-width: 2;
-            fill: none;
-        }
-        
-        .include-arrow {
-            stroke: #000;
-            stroke-width: 2;
-            fill: none;
-            stroke-dasharray: 5,5;
-        }
-        
-        .extend-arrow {
-            stroke: #e24a4a;
-            stroke-width: 2;
-            fill: none;
-            stroke-dasharray: 5,5;
-        }
-        
-        .generalization-arrow {
-            stroke: #000;
-            stroke-width: 2;
-            fill: white;
-        }
-        
-        .arrow-head {
-            fill: none;
-            stroke: #000;
-            stroke-width: 2;
-        }
-        
-        text {
-            font-family: Arial, sans-serif;
-            font-size: 12px;
-        }
-        
-        .label {
-            font-size: 12px;
-            fill: #333;
-        }
-        
-        .stereotype {
-            font-size: 10px;
-            fill: #666;
-            font-style: italic;
-        }
-        
-        .system-label {
-            font-size: 16px;
-            font-weight: bold;
-            fill: #666;
-        }
-        
-        .note {
-            fill: #fffacd;
-            stroke: #999;
-            stroke-width: 1;
-        }
-        
-        .note-text {
-            font-size: 10px;
-            fill: #333;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Редактор діаграм варіантів використання</title>
+<style>
+body { font-family: Arial, sans-serif; background:#fafafa; margin:0; display:flex; flex-direction:column; align-items:center; }
+.controls { display:flex; flex-wrap:wrap; gap:10px; margin:10px; align-items:center; justify-content:center; }
+button { background:#4a90e2; color:white; border:none; border-radius:6px; padding:8px 16px; cursor:pointer; font-size:14px; transition:0.2s; }
+button:hover { background:#357ab8; }
+button.active { background:#2b6cb0; }
+#arrowTypeSelector, #usecaseOptions, #contextMenu { display:none; position:absolute; flex-direction:row; background:#fff; border:1px solid #ccc; padding:5px; border-radius:5px; z-index:100; gap:5px; align-items:center; }
+#arrowTypeSelector label, #usecaseOptions label { display:flex; flex-direction:column; align-items:center; gap:2px; cursor:pointer; }
+svg { border:1px solid #ddd; background-color:#fff; width:90vw; height:80vh; cursor:default; }
+text { user-select:none; pointer-events:none; }
+.connection { stroke-width:1.5px; }
+.association { stroke:#333; }
+.include-arrow { stroke:#2b8a3e; }
+.extend-arrow { stroke:#a23e48; }
+.generalization-arrow { stroke:#4a90e2; }
+.stereotype { font-size:12px; fill:#555; }
+.connecting { stroke:#999; stroke-dasharray:5,5; }
+.selected circle, .selected ellipse, .selected rect { stroke:#ff5733; stroke-width:2px; }
+.draggable circle, .draggable ellipse, .draggable rect { cursor:move; }
+</style>
 </head>
 <body>
-    <div class="diagram-container">
-        <div class="diagram-title">Деталізована діаграма варіантів використання<br>Система форматування документів у текстовому редакторі</div>
-        
-        <svg viewBox="0 0 1300 900">
-            <!-- System boundary -->
-            <rect x="200" y="80" width="950" height="750" class="system-boundary" rx="10"/>
-            <text x="675" y="70" class="system-label" text-anchor="middle">Текстовий редактор</text>
-            
-            <!-- Actors -->
-            <!-- Regular User -->
-            <g transform="translate(80, 250)">
-                <circle cx="0" cy="0" r="15" class="actor-head"/>
-                <line x1="0" y1="15" x2="0" y2="50" class="actor"/>
-                <line x1="0" y1="25" x2="-20" y2="40" class="actor"/>
-                <line x1="0" y1="25" x2="20" y2="40" class="actor"/>
-                <line x1="0" y1="50" x2="-15" y2="75" class="actor"/>
-                <line x1="0" y1="50" x2="15" y2="75" class="actor"/>
-                <text x="0" y="95" text-anchor="middle" class="label">Користувач</text>
-            </g>
-            
-            <!-- Professional User -->
-            <g transform="translate(80, 450)">
-                <circle cx="0" cy="0" r="15" class="actor-head"/>
-                <line x1="0" y1="15" x2="0" y2="50" class="actor"/>
-                <line x1="0" y1="25" x2="-20" y2="40" class="actor"/>
-                <line x1="0" y1="25" x2="20" y2="40" class="actor"/>
-                <line x1="0" y1="50" x2="-15" y2="75" class="actor"/>
-                <line x1="0" y1="50" x2="15" y2="75" class="actor"/>
-                <text x="0" y="95" text-anchor="middle" class="label">Професійний</text>
-                <text x="0" y="110" text-anchor="middle" class="label">користувач</text>
-            </g>
-            
-            <!-- System Actor -->
-            <g transform="translate(1220, 350)">
-                <rect x="-30" y="-20" width="60" height="40" class="use-case-secondary" rx="5"/>
-                <text x="0" y="-5" text-anchor="middle" class="label" font-size="11">Система</text>
-                <text x="0" y="10" text-anchor="middle" class="label" font-size="11">збереження</text>
-            </g>
-            
-            <!-- Generalization between actors -->
-            <line x1="80" y1="345" x2="80" y2="440" class="generalization-arrow"/>
-            <polygon points="80,345 75,353 85,353" fill="white" stroke="#000" stroke-width="2"/>
-            
-            <!-- Main Use Case -->
-            <ellipse cx="450" cy="250" rx="110" ry="40" class="use-case"/>
-            <text x="450" y="245" text-anchor="middle" class="label">Форматувати</text>
-            <text x="450" y="260" text-anchor="middle" class="label">документ</text>
-            
-            <!-- Level 1 Use Cases -->
-            <!-- Format Text -->
-            <ellipse cx="300" cy="400" rx="90" ry="35" class="use-case"/>
-            <text x="300" y="395" text-anchor="middle" class="label">Форматувати</text>
-            <text x="300" y="410" text-anchor="middle" class="label">текст</text>
-            
-            <!-- Format Paragraph -->
-            <ellipse cx="500" cy="420" rx="90" ry="35" class="use-case"/>
-            <text x="500" y="415" text-anchor="middle" class="label">Форматувати</text>
-            <text x="500" y="430" text-anchor="middle" class="label">абзац</text>
-            
-            <!-- Format Page -->
-            <ellipse cx="700" cy="400" rx="90" ry="35" class="use-case"/>
-            <text x="700" y="395" text-anchor="middle" class="label">Налаштувати</text>
-            <text x="700" y="410" text-anchor="middle" class="label">сторінку</text>
-            
-            <!-- Insert Objects -->
-            <ellipse cx="900" cy="380" rx="90" ry="35" class="use-case"/>
-            <text x="900" y="375" text-anchor="middle" class="label">Вставити</text>
-            <text x="900" y="390" text-anchor="middle" class="label">об'єкт</text>
-            
-            <!-- Level 2 Use Cases - Format Text details -->
-            <ellipse cx="240" cy="550" rx="75" ry="30" class="use-case-secondary"/>
-            <text x="240" y="545" text-anchor="middle" class="label" font-size="11">Змінити</text>
-            <text x="240" y="558" text-anchor="middle" class="label" font-size="11">шрифт</text>
-            
-            <ellipse cx="360" cy="550" rx="75" ry="30" class="use-case-secondary"/>
-            <text x="360" y="545" text-anchor="middle" class="label" font-size="11">Застосувати</text>
-            <text x="360" y="558" text-anchor="middle" class="label" font-size="11">стиль</text>
-            
-            <ellipse cx="300" cy="650" rx="75" ry="30" class="use-case-secondary"/>
-            <text x="300" y="645" text-anchor="middle" class="label" font-size="11">Змінити</text>
-            <text x="300" y="658" text-anchor="middle" class="label" font-size="11">колір</text>
-            
-            <!-- Level 2 Use Cases - Format Paragraph details -->
-            <ellipse cx="450" cy="570" rx="75" ry="30" class="use-case-secondary"/>
-            <text x="450" y="565" text-anchor="middle" class="label" font-size="11">Вирівняти</text>
-            <text x="450" y="578" text-anchor="middle" class="label" font-size="11">текст</text>
-            
-            <ellipse cx="550" cy="570" rx="75" ry="30" class="use-case-secondary"/>
-            <text x="550" y="565" text-anchor="middle" class="label" font-size="11">Встановити</text>
-            <text x="550" y="578" text-anchor="middle" class="label" font-size="11">відступи</text>
-            
-            <ellipse cx="500" cy="670" rx="75" ry="30" class="use-case-secondary"/>
-            <text x="500" y="665" text-anchor="middle" class="label" font-size="11">Міжрядковий</text>
-            <text x="500" y="678" text-anchor="middle" class="label" font-size="11">інтервал</text>
-            
-            <!-- Level 2 Use Cases - Insert Objects details -->
-            <ellipse cx="850" cy="520" rx="75" ry="30" class="use-case-secondary"/>
-            <text x="850" y="515" text-anchor="middle" class="label" font-size="11">Вставити</text>
-            <text x="850" y="528" text-anchor="middle" class="label" font-size="11">таблицю</text>
-            
-            <ellipse cx="950" cy="520" rx="75" ry="30" class="use-case-secondary" />
-            <text x="950" y="515" text-anchor="middle" class="label" font-size="11">Вставити</text>
-            <text x="950" y="528" text-anchor="middle" class="label" font-size="11">зображення</text>
-            
-            <!-- Common Use Case -->
-            <ellipse cx="1000" cy="250" rx="80" ry="30" class="use-case" />
-            <text x="1000" y="245" text-anchor="middle" class="label" font-size="11">Зберегти</text>
-            <text x="1000" y="258" text-anchor="middle" class="label" font-size="11">зміни</text>
-            
-            <!-- Extension Use Case -->
-            <ellipse cx="700" cy="150" rx="80" ry="30" class="use-case-secondary"/>
-            <text x="700" y="145" text-anchor="middle" class="label" font-size="11">Перевірити</text>
-            <text x="700" y="158" text-anchor="middle" class="label" font-size="11">орфографію</text>
-            
-            <!-- Associations from actors -->
-            <line x1="100" y1="285" x2="355" y2="235" class="association"/>
-            <line x1="100" y1="485" x2="395" y2="275" class="association"/>
-            
-            <!-- Include relationships from main use case -->
-            <line x1="365" y1="275" x2="330" y2="370" class="include-arrow"/>
-            <polygon points="330,370 335,362
+
+<div class="controls">
+  <button id="moveBtn" class="active" onclick="setMode('move')">Рухати</button>
+  <button id="connectBtn" onclick="setMode('connect')">З'єднати</button>
+  <div id="arrowTypeSelector">
+    <label><input type="radio" name="arrowType" value="association" checked>Association</label>
+    <label><input type="radio" name="arrowType" value="include">&lt;&lt;include&gt;&gt;</label>
+    <label><input type="radio" name="arrowType" value="extend">&lt;&lt;extend&gt;&gt;</label>
+    <label><input type="radio" name="arrowType" value="generalization">Generalization</label>
+  </div>
+  <button id="createUseCaseBtn" onclick="toggleUseCaseMenu()">Створити Use Case</button>
+  <div id="usecaseOptions">
+    <label>Назва: <input type="text" id="newUseCaseName" value="Use Case"></label>
+    <label>Форма: 
+      <select id="newUseCaseShape">
+        <option value="ellipse">Ellipse</option>
+        <option value="rect">Rectangle</option>
+      </select>
+    </label>
+    <label>Колір: <input type="color" id="newUseCaseColor" value="#fef7e0"></label>
+    <button onclick="addUseCase()">Додати</button>
+  </div>
+  <button onclick="addActorPrompt()">Додати Актор</button>
+  <button onclick="deleteLastConnection()">Видалити останній зв’язок</button>
+  <button onclick="resetPositions()">Скинути позиції</button>
+</div>
+
+<div id="contextMenu">
+  <label>Колір: <input type="color" id="contextColor"></label>
+  <label id="contextShapeLabel">Форма: 
+    <select id="contextShape">
+      <option value="ellipse">Ellipse</option>
+      <option value="rect">Rectangle</option>
+    </select>
+  </label>
+  <button onclick="applyContextChanges()">Застосувати</button>
+</div>
+
+<svg id="diagram">
+  <defs>
+    <marker id="arrow-association" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#333"/></marker>
+    <marker id="arrow-include" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2b8a3e"/></marker>
+    <marker id="arrow-extend" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#a23e48"/></marker>
+    <marker id="arrow-generalization" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4a90e2"/></marker>
+  </defs>
+  <g id="connections"></g>
+  <g id="actors"></g>
+  <g id="usecases"></g>
+</svg>
+
+<script>
+let mode='move', selectedElement=null, offset={x:0,y:0}, connectingFrom=null, tempLine=null;
+const svg=document.getElementById('diagram');
+const connectionsGroup=document.getElementById('connections');
+const actorsGroup=document.getElementById('actors');
+const usecasesGroup=document.getElementById('usecases');
+const connections=[];
+let actorCount=0;
+let contextTarget=null;
+
+// --- Режими ---
+function setMode(newMode){
+  mode=newMode;
+  document.getElementById('moveBtn').classList.toggle('active', mode==='move');
+  document.getElementById('connectBtn').classList.toggle('active', mode==='connect');
+  document.getElementById('arrowTypeSelector').style.display=mode==='connect'?'flex':'none';
+  document.getElementById('usecaseOptions').style.display='none';
+  connectingFrom=null;
+  if(tempLine){tempLine.remove(); tempLine=null;}
+}
+
+// --- Меню Use Case ---
+function toggleUseCaseMenu(){
+  const menu=document.getElementById('usecaseOptions');
+  if(menu.style.display==='flex'){menu.style.display='none'; return;}
+  document.getElementById('arrowTypeSelector').style.display='none';
+  const rect=document.getElementById('createUseCaseBtn').getBoundingClientRect();
+  menu.style.left=rect.left+'px';
+  menu.style.top=(rect.bottom+5)+'px';
+  menu.style.display='flex';
+}
+
+// --- Додавання Акторів ---
+function addActorPrompt(){
+  const name=prompt('Введіть ім’я актора','Актор');
+  if(name) addActor(name);
+}
+function addActor(name='Актор'){
+  actorCount++;
+  const id='actor'+actorCount;
+  const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+  g.setAttribute('id',id); g.setAttribute('class','draggable actor-group');
+  g.setAttribute('transform',`translate(${100+actorCount*30},${100+actorCount*50})`);
+  const head=document.createElementNS('http://www.w3.org/2000/svg','circle');
+  head.setAttribute('cx',0); head.setAttribute('cy',0); head.setAttribute('r',15);
+  head.setAttribute('fill','#e7f3ff'); head.setAttribute('stroke','#333'); head.setAttribute('stroke-width','2');
+  g.appendChild(head);
+  const body=document.createElementNS('http://www.w3.org/2000/svg','line');
+  body.setAttribute('x1',0); body.setAttribute('y1',15); body.setAttribute('x2',0); body.setAttribute('y2',50);
+  body.setAttribute('stroke','#333'); body.setAttribute('stroke-width','2'); g.appendChild(body);
+  const arms=document.createElementNS('http://www.w3.org/2000/svg','line');
+  arms.setAttribute('x1',-25); arms.setAttribute('y1',30); arms.setAttribute('x2',25); arms.setAttribute('y2',30);
+  arms.setAttribute('stroke','#333'); arms.setAttribute('stroke-width','2'); g.appendChild(arms);
+  const leftLeg=document.createElementNS('http://www.w3.org/2000/svg','line');
+  leftLeg.setAttribute('x1',0); leftLeg.setAttribute('y1',50); leftLeg.setAttribute('x2',-20); leftLeg.setAttribute('y2',80);
+  leftLeg.setAttribute('stroke','#333'); leftLeg.setAttribute('stroke-width','2'); g.appendChild(leftLeg);
+  const rightLeg=document.createElementNS('http://www.w3.org/2000/svg','line');
+  rightLeg.setAttribute('x1',0); rightLeg.setAttribute('y1',50); rightLeg.setAttribute('x2',20); rightLeg.setAttribute('y2',80);
+  rightLeg.setAttribute('stroke','#333'); rightLeg.setAttribute('stroke-width','2'); g.appendChild(rightLeg);
+  const label=document.createElementNS('http://www.w3.org/2000/svg','text');
+  label.setAttribute('x',0); label.setAttribute('y',95); label.setAttribute('text-anchor','middle'); label.textContent=name;
+  g.appendChild(label);
+  actorsGroup.appendChild(g);
+  makeDraggable(g);
+  addClickHandlers(g,label);
+}
+
+// --- Додавання Use Case ---
+function addUseCase(){
+  const name=document.getElementById('newUseCaseName').value||'Use Case';
+  const shape=document.getElementById('newUseCaseShape').value;
+  const color=document.getElementById('newUseCaseColor').value||'#fef7e0';
+  const id='usecase'+(usecasesGroup.childNodes.length+1);
+  const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+  g.setAttribute('id',id); g.setAttribute('class','draggable usecase');
+  g.setAttribute('transform','translate(400,200)');
+  let elem;
+  if(shape==='ellipse'){ elem=document.createElementNS('http://www.w3.org/2000/svg','ellipse'); elem.setAttribute('cx',0); elem.setAttribute('cy',0); elem.setAttribute('rx',80); elem.setAttribute('ry',30); }
+  else{ elem=document.createElementNS('http://www.w3.org/2000/svg','rect'); elem.setAttribute('x',-80); elem.setAttribute('y',-30); elem.setAttribute('width',160); elem.setAttribute('height',60); elem.setAttribute('rx',10); elem.setAttribute('ry',10);}
+  elem.setAttribute('fill',color); elem.setAttribute('stroke','#333'); elem.setAttribute('stroke-width','1.5'); g.appendChild(elem);
+  const label=document.createElementNS('http://www.w3.org/2000/svg','text');
+  label.setAttribute('x',0); label.setAttribute('y',5); label.setAttribute('text-anchor','middle'); label.textContent=name;
+  g.appendChild(label);
+  usecasesGroup.appendChild(g);
+  makeDraggable(g);
+  addClickHandlers(g,label);
+  document.getElementById('usecaseOptions').style.display='none';
+}
+
+// --- Dragging ---
+function makeDraggable(element){ element.addEventListener('mousedown', startDrag); }
+function startDrag(evt){
+  if(mode!=='move') return;
+  selectedElement=evt.currentTarget;
+  const pos=getMousePosition(evt);
+  const transform=selectedElement.getAttribute('transform');
+  const translate=transform.match(/translate\(([-\d.]+),\s*([-\d.]+)\)/);
+  offset.x=pos.x-parseFloat(translate[1]);
+  offset.y=pos.y-parseFloat(translate[2]);
+  svg.addEventListener('mousemove', drag);
+  svg.addEventListener('mouseup', endDrag);
+}
+function drag(evt){
+  if(selectedElement){
+    const pos=getMousePosition(evt);
+    const x=pos.x-offset.x, y=pos.y-offset.y;
+    selectedElement.setAttribute('transform',`translate(${x},${y})`);
+    updateConnections(selectedElement.id);
+  }
+}
+function endDrag(){ svg.removeEventListener('mousemove',drag); svg.removeEventListener('mouseup',endDrag); selectedElement=null; }
+function getMousePosition(evt){ const CTM=svg.getScreenCTM(); return { x:(evt.clientX-CTM.e)/CTM.a, y:(evt.clientY-CTM.f)/CTM.d }; }
+
+// --- Click Handlers ---
+function addClickHandlers(element,label){
+  element.addEventListener('click', function(evt){
+    if(mode==='connect'){
+      evt.stopPropagation();
+      if(!connectingFrom){ connectingFrom=element; element.classList.add('selected'); }
+      else if(connectingFrom!==element){ createConnection(connectingFrom, element); connectingFrom.classList.remove('selected'); connectingFrom=null; if(tempLine){ tempLine.remove(); tempLine=null;} }
+    }
+  });
+  element.addEventListener('contextmenu', function(evt){ showContextMenu(evt, element); });
+  element.addEventListener('dblclick', function(evt){ const newText=prompt('Введіть новий текст', label.textContent); if(newText!==null) label.textContent=newText; });
+}
+
+// --- Connections ---
+svg.addEventListener('mousemove', function(evt){
+  if(mode==='connect' && connectingFrom){
+    const CTM=svg.getScreenCTM();
+    const x=(evt.clientX-CTM.e)/CTM.a;
+    const y=(evt.clientY-CTM.f)/CTM.d;
+    const fromPos=getElementPosition(connectingFrom);
+    if(!tempLine){ tempLine=document.createElementNS('http://www.w3.org/2000/svg','line'); tempLine.classList.add('connecting'); connectionsGroup.appendChild(tempLine);}
+    tempLine.setAttribute('x1',fromPos.x); tempLine.setAttribute('y1',fromPos.y);
+    tempLine.setAttribute('x2',x); tempLine.setAttribute('y2',y);
+  }
+});
+function getElementPosition(element){
+  const transform=element.getAttribute('transform');
+  const match=transform.match(/translate\(([-\d.]+),\s*([-\d.]+)\)/);
+  return { x:parseFloat(match[1]), y:parseFloat(match[2]) };
+}
+function createConnection(from,to){
+  const arrowType=document.querySelector('input[name="arrowType"]:checked').value;
+  const fromPos=getElementPosition(from), toPos=getElementPosition(to);
+  const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+  line.setAttribute('x1',fromPos.x); line.setAttribute('y1',fromPos.y);
+  line.setAttribute('x2',toPos.x); line.setAttribute('y2',toPos.y);
+  line.dataset.from=from.id; line.dataset.to=to.id; line.classList.add('connection');
+  let label=null;
+  switch(arrowType){
+    case 'association': line.classList.add('association'); line.setAttribute('marker-end','url(#arrow-association)'); break;
+    case 'include': line.classList.add('include-arrow'); line.setAttribute('marker-end','url(#arrow-include)'); label=createLabel(fromPos,toPos,'<<include>>'); break;
+    case 'extend': line.classList.add('extend-arrow'); line.setAttribute('marker-end','url(#arrow-extend)'); label=createLabel(fromPos,toPos,'<<extend>>'); break;
+    case 'generalization': line.classList.add('generalization-arrow'); line.setAttribute('marker-end','url(#arrow-generalization)'); break;
+  }
+  connectionsGroup.appendChild(line);
+  if(label) connectionsGroup.appendChild(label);
+  connections.push({line,label});
+}
+function createLabel(fromPos,toPos,text){
+  const label=document.createElementNS('http://www.w3.org/2000/svg','text');
+  label.setAttribute('x',(fromPos.x+toPos.x)/2);
+  label.setAttribute('y',(fromPos.y+toPos.y)/2-5);
+  label.setAttribute('class','stereotype');
+  label.setAttribute('text-anchor','middle'); label.textContent=text;
+  return label;
+}
+function updateConnections(id){
+  connections.forEach(conn=>{
+    const {line,label}=conn;
+    const from=document.getElementById(line.dataset.from), to=document.getElementById(line.dataset.to);
+    const fromPos=getElementPosition(from), toPos=getElementPosition(to);
+    line.setAttribute('x1',fromPos.x); line.setAttribute('y1',fromPos.y);
+    line.setAttribute('x2',toPos.x); line.setAttribute('y2',toPos.y);
+    if(label){ label.setAttribute('x',(fromPos.x+toPos.x)/2); label.setAttribute('y',(fromPos.y+toPos.y)/2-5); }
+  });
+}
+
+// --- Reset / Delete ---
+function resetPositions(){ document.querySelectorAll('.draggable').forEach(el=>el.setAttribute('transform', el.getAttribute('transform'))); connections.forEach(c=>{c.line.remove(); if(c.label)c.label.remove();}); connections.length=0;}
+function deleteLastConnection(){ if(connections.length>0){ const last=connections.pop(); last.line.remove(); if(last.label)last.label.remove(); }}
+
+// --- Context Menu ---
+function showContextMenu(evt, element){
+  evt.preventDefault();
+  contextTarget=element;
+  const menu=document.getElementById('contextMenu');
+  const rect=document.getElementById('createUseCaseBtn').getBoundingClientRect();
+  menu.style.left = rect.left + 'px';
+  menu.style.top = (rect.bottom+5) + 'px';
+  menu.style.display='flex';
+   // Якщо це Use Case – показуємо форму, інакше приховуємо
+  const isUseCase = element.classList.contains('usecase');
+  document.getElementById('contextShapeLabel').style.display = isUseCase ? 'flex' : 'none';
+  const elem = element.querySelector('ellipse, rect, circle');
+  document.getElementById('contextColor').value = elem.getAttribute('fill') || '#ffffff';
+  if (isUseCase) {
+    document.getElementById('contextShape').value = elem.tagName;
+  }
+}
+
+function applyContextChanges() {
+  if (!contextTarget) return;
+  const color = document.getElementById('contextColor').value;
+  const shapeSelect = document.getElementById('contextShape').value;
+  const elem = contextTarget.querySelector('ellipse, rect, circle');
+  elem.setAttribute('fill', color);
+  
+  // Зміна форми лише для Use Case
+  if (contextTarget.classList.contains('usecase') && elem.tagName !== shapeSelect) {
+    const bbox = elem.getBBox();
+    let newElem;
+    if (shapeSelect === 'ellipse') {
+      newElem = document.createElementNS('http://www.w3.org/2000/svg','ellipse');
+      newElem.setAttribute('cx',0);
+      newElem.setAttribute('cy',0);
+      newElem.setAttribute('rx', bbox.width/2 || 80);
+      newElem.setAttribute('ry', bbox.height/2 || 30);
+    } else {
+      newElem = document.createElementNS('http://www.w3.org/2000/svg','rect');
+      newElem.setAttribute('x', -bbox.width/2 || -80);
+      newElem.setAttribute('y', -bbox.height/2 || -30);
+      newElem.setAttribute('width', bbox.width || 160);
+      newElem.setAttribute('height', bbox.height || 60);
+      newElem.setAttribute('rx',10);
+      newElem.setAttribute('ry',10);
+    }
+    newElem.setAttribute('fill', color);
+    newElem.setAttribute('stroke','#333');
+    newElem.setAttribute('stroke-width','1.5');
+    const oldElem = contextTarget.querySelector('ellipse, rect');
+    contextTarget.replaceChild(newElem, oldElem);
+  }
+  document.getElementById('contextMenu').style.display='none';
+  contextTarget=null;
+}
+
+// --- Клік поза меню ховає його ---
+document.addEventListener('click', function(evt){
+  const menu = document.getElementById('contextMenu');
+  if(menu.style.display==='flex' && !menu.contains(evt.target)){
+    menu.style.display='none';
+    contextTarget=null;
+  }
+});
+</script>
+
+</body>
+</html>
