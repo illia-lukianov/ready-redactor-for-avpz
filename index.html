@@ -54,6 +54,10 @@ text { user-select:none; pointer-events:none; }
   <button onclick="addActorPrompt()">Додати Актор</button>
   <button onclick="deleteLastConnection()">Видалити останній зв’язок</button>
   <button onclick="resetPositions()">Скинути позиції</button>
+  <button onclick="saveDiagram()">Зберегти</button>
+  <button onclick="loadDiagram()">Завантажити</button>
+  <button onclick="exportPNG()">Експортувати PNG</button>
+  <button onclick="exportSVG()">Експортувати SVG</button>
 </div>
 
 <div id="contextMenu">
@@ -96,22 +100,13 @@ function setMode(newMode) {
   document.getElementById('connectBtn').classList.toggle('active', mode === 'connect');
 
   const arrowMenu = document.getElementById('arrowTypeSelector');
-  if (mode === 'connect') {
-    arrowMenu.style.display = 'flex';
-  } else {
-    arrowMenu.style.display = 'none';
-  }
+  arrowMenu.style.display = (mode==='connect') ? 'flex' : 'none';
 
-  document.getElementById('usecaseOptions').style.display = 'none';
+  document.getElementById('usecaseOptions').style.display='none';
 
-  if (connectingFrom) {
-    connectingFrom.classList.remove('selected');
-    connectingFrom = null;
-  }
-  if (tempLine) {
-    tempLine.remove();
-    tempLine = null;
-  }
+  if (connectingFrom) connectingFrom.classList.remove('selected');
+  connectingFrom=null;
+  if(tempLine){ tempLine.remove(); tempLine=null; }
 }
 
 // --- Меню Use Case ---
@@ -238,109 +233,218 @@ function getElementPosition(element){
 }
 function createConnection(from,to){
   const arrowType=document.querySelector('input[name="arrowType"]:checked').value;
-  const fromPos=getElementPosition(from), toPos=getElementPosition(to);
+  const fromPos=getElementPosition(from); const toPos=getElementPosition(to);
   const line=document.createElementNS('http://www.w3.org/2000/svg','line');
   line.setAttribute('x1',fromPos.x); line.setAttribute('y1',fromPos.y);
   line.setAttribute('x2',toPos.x); line.setAttribute('y2',toPos.y);
-  line.dataset.from=from.id; line.dataset.to=to.id; line.classList.add('connection');
-  let label=null;
+  line.dataset.from=from.id; line.dataset.to=to.id; line.classList  .add('connection');
+
+  let labelElem = null;
   switch(arrowType){
-    case 'association': line.classList.add('association'); line.setAttribute('marker-end','url(#arrow-association)'); break;
-    case 'include': line.classList.add('include-arrow'); line.setAttribute('marker-end','url(#arrow-include)'); label=createLabel(fromPos,toPos,'<<include>>'); break;
-    case 'extend': line.classList.add('extend-arrow'); line.setAttribute('marker-end','url(#arrow-extend)'); label=createLabel(fromPos,toPos,'<<extend>>'); break;
-    case 'generalization': line.classList.add('generalization-arrow'); line.setAttribute('marker-end','url(#arrow-generalization)'); break;
+    case 'association':
+      line.classList.add('association');
+      line.setAttribute('marker-end','url(#arrow-association)');
+      break;
+    case 'include':
+      line.classList.add('include-arrow');
+      line.setAttribute('marker-end','url(#arrow-include)');
+      labelElem = createLabel(fromPos,toPos,'<<include>>');
+      break;
+    case 'extend':
+      line.classList.add('extend-arrow');
+      line.setAttribute('marker-end','url(#arrow-extend)');
+      labelElem = createLabel(fromPos,toPos,'<<extend>>');
+      break;
+    case 'generalization':
+      line.classList.add('generalization-arrow');
+      line.setAttribute('marker-end','url(#arrow-generalization)');
+      break;
   }
+
   connectionsGroup.appendChild(line);
-  if(label) connectionsGroup.appendChild(label);
-  connections.push({line,label});
+  if(labelElem) connectionsGroup.appendChild(labelElem);
+  connections.push({line,label:labelElem});
+  saveDiagram();
 }
-function createLabel(fromPos,toPos,text){
-  const label=document.createElementNS('http://www.w3.org/2000/svg','text');
-  label.setAttribute('x',(fromPos.x+toPos.x)/2);
-  label.setAttribute('y',(fromPos.y+toPos.y)/2-5);
-  label.setAttribute('class','stereotype');
-  label.setAttribute('text-anchor','middle'); label.textContent=text;
-  return label;
+
+// --- Labels for connections ---
+function createLabel(from,to,text){
+  const midX=(from.x+to.x)/2;
+  const midY=(from.y+to.y)/2-5;
+  const lbl=document.createElementNS('http://www.w3.org/2000/svg','text');
+  lbl.setAttribute('x',midX);
+  lbl.setAttribute('y',midY);
+  lbl.setAttribute('text-anchor','middle');
+  lbl.setAttribute('fill','#555');
+  lbl.setAttribute('font-size','12');
+  lbl.textContent=text;
+  return lbl;
 }
+
+// --- Update connection positions when nodes move ---
 function updateConnections(id){
-  connections.forEach(conn=>{
-    const {line,label}=conn;
-    const from=document.getElementById(line.dataset.from), to=document.getElementById(line.dataset.to);
-    const fromPos=getElementPosition(from), toPos=getElementPosition(to);
-    line.setAttribute('x1',fromPos.x); line.setAttribute('y1',fromPos.y);
-    line.setAttribute('x2',toPos.x); line.setAttribute('y2',toPos.y);
-    if(label){ label.setAttribute('x',(fromPos.x+toPos.x)/2); label.setAttribute('y',(fromPos.y+toPos.y)/2-5); }
+  connections.forEach(c=>{
+    if(c.line.dataset.from===id || c.line.dataset.to===id){
+      const fromPos=getElementPosition(document.getElementById(c.line.dataset.from));
+      const toPos=getElementPosition(document.getElementById(c.line.dataset.to));
+      c.line.setAttribute('x1',fromPos.x); c.line.setAttribute('y1',fromPos.y);
+      c.line.setAttribute('x2',toPos.x); c.line.setAttribute('y2',toPos.y);
+      if(c.label){
+        c.label.setAttribute('x',(fromPos.x+toPos.x)/2);
+        c.label.setAttribute('y',(fromPos.y+toPos.y)/2-5);
+      }
+    }
   });
 }
 
-// --- Reset / Delete ---
-function resetPositions(){ document.querySelectorAll('.draggable').forEach(el=>el.setAttribute('transform', el.getAttribute('transform'))); connections.forEach(c=>{c.line.remove(); if(c.label)c.label.remove();}); connections.length=0;}
-function deleteLastConnection(){ if(connections.length>0){ const last=connections.pop(); last.line.remove(); if(last.label)last.label.remove(); }}
-
-// --- Context Menu ---
-function showContextMenu(evt, element){
-  evt.preventDefault();
-  contextTarget=element;
-  const menu=document.getElementById('contextMenu');
-  const rect=document.getElementById('createUseCaseBtn').getBoundingClientRect();
-  menu.style.left = rect.left + 'px';
-  menu.style.top = (rect.bottom+5) + 'px';
-  menu.style.display='flex';
-   // Якщо це Use Case – показуємо форму, інакше приховуємо
-  const isUseCase = element.classList.contains('usecase');
-  document.getElementById('contextShapeLabel').style.display = isUseCase ? 'flex' : 'none';
-  const elem = element.querySelector('ellipse, rect, circle');
-  document.getElementById('contextColor').value = elem.getAttribute('fill') || '#ffffff';
-  if (isUseCase) {
-    document.getElementById('contextShape').value = elem.tagName;
-  }
-}
-
-function applyContextChanges() {
-  if (!contextTarget) return;
-  const color = document.getElementById('contextColor').value;
-  const shapeSelect = document.getElementById('contextShape').value;
-  const elem = contextTarget.querySelector('ellipse, rect, circle');
-  elem.setAttribute('fill', color);
+// --- Save/Load Diagram ---
+function saveDiagram(){
+  const data={actors:[], usecases:[], connections:[]};
   
-  // Зміна форми лише для Use Case
-  if (contextTarget.classList.contains('usecase') && elem.tagName !== shapeSelect) {
-    const bbox = elem.getBBox();
-    let newElem;
-    if (shapeSelect === 'ellipse') {
-      newElem = document.createElementNS('http://www.w3.org/2000/svg','ellipse');
-      newElem.setAttribute('cx',0);
-      newElem.setAttribute('cy',0);
-      newElem.setAttribute('rx', bbox.width/2 || 80);
-      newElem.setAttribute('ry', bbox.height/2 || 30);
-    } else {
-      newElem = document.createElementNS('http://www.w3.org/2000/svg','rect');
-      newElem.setAttribute('x', -bbox.width/2 || -80);
-      newElem.setAttribute('y', -bbox.height/2 || -30);
-      newElem.setAttribute('width', bbox.width || 160);
-      newElem.setAttribute('height', bbox.height || 60);
-      newElem.setAttribute('rx',10);
-      newElem.setAttribute('ry',10);
-    }
-    newElem.setAttribute('fill', color);
-    newElem.setAttribute('stroke','#333');
-    newElem.setAttribute('stroke-width','1.5');
-    const oldElem = contextTarget.querySelector('ellipse, rect');
-    contextTarget.replaceChild(newElem, oldElem);
-  }
-  document.getElementById('contextMenu').style.display='none';
-  contextTarget=null;
+  actorsGroup.childNodes.forEach(a=>{
+    data.actors.push({id:a.id, label:a.querySelector('text').textContent, transform:a.getAttribute('transform')});
+  });
+
+  usecasesGroup.childNodes.forEach(u=>{
+    const elem=u.querySelector('ellipse,rect');
+    data.usecases.push({
+      id:u.id,
+      label:u.querySelector('text').textContent,
+      transform:u.getAttribute('transform'),
+      shape:elem.tagName,
+      color:elem.getAttribute('fill')
+    });
+  });
+
+  connections.forEach(c=>{
+    let t='association';
+    if(c.line.classList.contains('include-arrow')) t='include';
+    else if(c.line.classList.contains('extend-arrow')) t='extend';
+    else if(c.line.classList.contains('generalization-arrow')) t='generalization';
+    const from=c.line.dataset.from;
+    const to=c.line.dataset.to;
+    const label=c.label ? c.label.textContent : null;
+    data.connections.push({from,to,type:t,label});
+  });
+
+  localStorage.setItem('diagramData', JSON.stringify(data));
+  console.log('Діаграма збережена');
 }
 
-// --- Клік поза меню ховає його ---
-document.addEventListener('click', function(evt){
-  const menu = document.getElementById('contextMenu');
-  if(menu.style.display==='flex' && !menu.contains(evt.target)){
-    menu.style.display='none';
-    contextTarget=null;
-  }
-});
-</script>
+function loadDiagram() {
+  const dataStr = localStorage.getItem('diagramData');
+  if(!dataStr) { alert('Немає збережених даних'); return; }
+  const data = JSON.parse(dataStr);
 
-</body>
-</html>
+  // --- Очищення ---
+  actorsGroup.innerHTML='';
+  usecasesGroup.innerHTML='';
+  connectionsGroup.innerHTML='';
+  connections.length = 0;
+
+  // --- Відновлення акторів ---
+  data.actors.forEach(a=>{
+    const id = a.id;
+    const name = a.label;
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('id', id);
+    g.setAttribute('class','draggable actor-group');
+    g.setAttribute('transform', a.transform);
+
+    // Голова
+    const head=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    head.setAttribute('cx',0); head.setAttribute('cy',0); head.setAttribute('r',15);
+    head.setAttribute('fill','#e7f3ff'); head.setAttribute('stroke','#333'); head.setAttribute('stroke-width','2');
+    g.appendChild(head);
+
+    // Тіло
+    const body=document.createElementNS('http://www.w3.org/2000/svg','line');
+    body.setAttribute('x1',0); body.setAttribute('y1',15); body.setAttribute('x2',0); body.setAttribute('y2',50);
+    body.setAttribute('stroke','#333'); body.setAttribute('stroke-width','2'); g.appendChild(body);
+
+    // Руки
+    const arms=document.createElementNS('http://www.w3.org/2000/svg','line');
+    arms.setAttribute('x1',-25); arms.setAttribute('y1',30); arms.setAttribute('x2',25); arms.setAttribute('y2',30);
+    arms.setAttribute('stroke','#333'); arms.setAttribute('stroke-width','2'); g.appendChild(arms);
+
+    // Ноги
+    const leftLeg=document.createElementNS('http://www.w3.org/2000/svg','line');
+    leftLeg.setAttribute('x1',0); leftLeg.setAttribute('y1',50); leftLeg.setAttribute('x2',-20); leftLeg.setAttribute('y2',80);
+    leftLeg.setAttribute('stroke','#333'); leftLeg.setAttribute('stroke-width','2'); g.appendChild(leftLeg);
+    const rightLeg=document.createElementNS('http://www.w3.org/2000/svg','line');
+    rightLeg.setAttribute('x1',0); rightLeg.setAttribute('y1',50); rightLeg.setAttribute('x2',20); rightLeg.setAttribute('y2',80);
+    rightLeg.setAttribute('stroke','#333'); rightLeg.setAttribute('stroke-width','2'); g.appendChild(rightLeg);
+
+    // Підпис
+    const label=document.createElementNS('http://www.w3.org/2000/svg','text');
+    label.setAttribute('x',0); label.setAttribute('y',95); label.setAttribute('text-anchor','middle'); label.textContent=name;
+    g.appendChild(label);
+
+    actorsGroup.appendChild(g);
+    makeDraggable(g);
+    addClickHandlers(g,label);
+  });
+
+  // --- Відновлення use cases ---
+  data.usecases.forEach(u=>{
+    const id = u.id;
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('id', id);
+    g.setAttribute('class','draggable usecase');
+    g.setAttribute('transform', u.transform);
+
+    let elem;
+    if(u.shape==='ellipse'){
+      elem=document.createElementNS('http://www.w3.org/2000/svg','ellipse');
+      elem.setAttribute('cx',0); elem.setAttribute('cy',0); elem.setAttribute('rx',80); elem.setAttribute('ry',30);
+    } else {
+      elem=document.createElementNS('http://www.w3.org/2000/svg','rect');
+      elem.setAttribute('x',-80); elem.setAttribute('y',-30); elem.setAttribute('width',160); elem.setAttribute('height',60);
+      elem.setAttribute('rx',10); elem.setAttribute('ry',10);
+    }
+    elem.setAttribute('fill', u.color); elem.setAttribute('stroke','#333'); elem.setAttribute('stroke-width','1.5');
+    g.appendChild(elem);
+
+    const label=document.createElementNS('http://www.w3.org/2000/svg','text');
+    label.setAttribute('x',0); label.setAttribute('y',5); label.setAttribute('text-anchor','middle'); label.textContent=u.label;
+    g.appendChild(label);
+
+    usecasesGroup.appendChild(g);
+    makeDraggable(g);
+    addClickHandlers(g,label);
+  });
+
+  // --- Відновлення зв’язків ---
+  data.connections.forEach(c=>{
+    const from = document.getElementById(c.from);
+    const to = document.getElementById(c.to);
+    if(from && to){
+      const arrowType = c.type;
+      const fromPos = getElementPosition(from);
+      const toPos = getElementPosition(to);
+
+      const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+      line.setAttribute('x1',fromPos.x); line.setAttribute('y1',fromPos.y);
+      line.setAttribute('x2',toPos.x); line.setAttribute('y2',toPos.y);
+      line.dataset.from = c.from; line.dataset.to = c.to;
+      line.classList.add('connection');
+
+      let labelElem = null;
+      switch(arrowType){
+        case 'association': line.classList.add('association'); line.setAttribute('marker-end','url(#arrow-association)'); break;
+        case 'include': line.classList.add('include-arrow'); line.setAttribute('marker-end','url(#arrow-include)'); if(c.label) labelElem=createLabel(fromPos,toPos,c.label); break;
+        case 'extend': line.classList.add('extend-arrow'); line.setAttribute('marker-end','url(#arrow-extend)'); if(c.label) labelElem=createLabel(fromPos,toPos,c.label); break;
+        case 'generalization': line.classList.add('generalization-arrow'); line.setAttribute('marker-end','url(#arrow-generalization)'); break;
+      }
+
+      connectionsGroup.appendChild(line);
+      if(labelElem) connectionsGroup.appendChild(labelElem);
+      connections.push({line,label:labelElem});
+    }
+  });
+
+  console.log('Діаграма завантажена');
+}
+
+window.addEventListener('load', loadDiagram);
+</script>
